@@ -1,10 +1,7 @@
 # Fracdiff: Super-fast Fractional Differentiation
 
-[![python versions](https://img.shields.io/pypi/pyversions/fracdiff.svg)](https://pypi.org/project/fracdiff)
-[![version](https://img.shields.io/pypi/v/fracdiff.svg)](https://pypi.org/project/fracdiff)
-[![CI](https://github.com/fracdiff/fracdiff/actions/workflows/ci.yml/badge.svg)](https://github.com/fracdiff/fracdiff/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/fracdiff/fracdiff/branch/main/graph/badge.svg)](https://codecov.io/gh/fracdiff/fracdiff)
-[![dl](https://img.shields.io/pypi/dm/fracdiff)](https://pypi.org/project/fracdiff)
+This is lite version (no sklearn / torch) with relaxed dependencies.
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 [Documentation](https://fracdiff.github.io/fracdiff/)
@@ -20,27 +17,13 @@ Fracdiff features super-fast computation and scikit-learn compatible API.
 
 See [M. L. Prado, "Advances in Financial Machine Learning"][prado].
 
-## Installation
-
-```sh
-pip install fracdiff
-```
-
 ## Features
 
 ### Functionalities
 
 - [`fdiff`][doc-fdiff]: A function that extends [`numpy.diff`](https://numpy.org/doc/stable/reference/generated/numpy.diff.html) to fractional differentiation.
-- [`sklearn.Fracdiff`][doc-sklearn.Fracdiff]: A scikit-learn [transformer](https://scikit-learn.org/stable/modules/generated/sklearn.base.TransformerMixin.html) to compute fractional differentiation.
-- [`sklearn.FracdiffStat`][doc-sklearn.FracdiffStat]: `Fracdiff` plus automatic choice of differentiation order that makes time-series stationary.
-- [`torch.fdiff`][doc-torch.fdiff]: A functional that extends [`torch.diff`](https://pytorch.org/docs/stable/generated/torch.diff.html) to fractional differentiation.
-- [`torch.Fracdiff`][doc-torch.Fracdiff]: A module that computes fractional differentiation.
 
 [doc-fdiff]: https://fracdiff.github.io/fracdiff/generated/fracdiff.fdiff.html
-[doc-sklearn.Fracdiff]: https://fracdiff.github.io/fracdiff/generated/fracdiff.sklearn.Fracdiff.html
-[doc-sklearn.FracdiffStat]: https://fracdiff.github.io/fracdiff/generated/fracdiff.sklearn.FracdiffStat.html
-[doc-torch.fdiff]: https://fracdiff.github.io/fracdiff/generated/fracdiff.torch.fdiff.html
-[doc-torch.Fracdiff]: https://fracdiff.github.io/fracdiff/generated/fracdiff.torch.Fracdiff.html
 
 ### Speed
 
@@ -97,97 +80,6 @@ fdiff(a, 0.5, axis=-1)
 # array([[1.    , 2.5   , 4.375 , 6.5625],
 #        [0.    , 5.    , 3.5   , 4.375 ]])
 ```
-
-### Scikit-learn API
-
-#### Preprocessing by fractional differentiation
-
-A transformer class [`Fracdiff`](https://fracdiff.github.io/fracdiff/#id1) performs fractional differentiation by its method `transform`.
-
-```python
-from fracdiff.sklearn import Fracdiff
-
-X = ...  # 2d time-series with shape (n_samples, n_features)
-
-f = Fracdiff(0.5)
-X = f.fit_transform(X)
-```
-
-For example, 0.5th differentiation of S&P 500 historical price looks like this:
-
-![spx](./examples/fig/spx.png)
-
-[`Fracdiff`](https://fracdiff.github.io/fracdiff/#id1) is compatible with scikit-learn API.
-One can imcorporate it into a pipeline.
-
-```python
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-
-X, y = ...  # Dataset
-
-pipeline = Pipeline([
-    ('scaler', StandardScaler()),
-    ('fracdiff', Fracdiff(0.5)),
-    ('regressor', LinearRegression()),
-])
-pipeline.fit(X, y)
-```
-
-#### Fractional differentiation while preserving memory
-
-A transformer class [`FracdiffStat`](https://fracdiff.github.io/fracdiff/#fracdiffstat) finds the minumum order of fractional differentiation that makes time-series stationary.
-Differentiated time-series with this order is obtained by subsequently applying `transform` method.
-This series is interpreted as a stationary time-series keeping the maximum memory of the original time-series.
-
-```python
-from fracdiff.sklearn import FracdiffStat
-
-X = ...  # 2d time-series with shape (n_samples, n_features)
-
-f = FracdiffStat()
-X = f.fit_transform(X)
-f.d_
-# array([0.71875 , 0.609375, 0.515625])
-```
-
-The result for Nikkei 225 index historical price looks like this:
-
-![nky](./examples/fig/nky.png)
-
-
-### PyTorch API
-
-One can fracdiff a PyTorch tensor. One can enjoy strong GPU acceleration.
-
-```py
-from fracdiff.torch import fdiff
-
-input = torch.tensor(...)
-output = fdiff(input, 0.5)
-```
-
-```py
-from fracdiff.torch import Fracdiff
-
-module = Fracdiff(0.5)
-module
-# Fracdiff(0.5, dim=-1, window=10, mode='same')
-
-input = torch.tensor(...)
-output = module(input)
-```
-
-### More Examples
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fracdiff/fracdiff/blob/main/examples/example_prado.ipynb)
-
-More examples are provided [here](examples/example_prado.ipynb).
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fracdiff/fracdiff/blob/main/examples/example_exercise.ipynb)
-
-Example solutions of exercises in Section 5 of "Advances in Financial Machine Learning" are provided [here](examples/example_exercise.ipynb).
 
 ## Contributing
 
